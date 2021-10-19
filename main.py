@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, flash
+from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_bootstrap import Bootstrap
 from flask_ckeditor import CKEditor
 from forms import CreatePostForm, CreateUserForm, LoginUserForm, CommentForm
@@ -139,6 +139,13 @@ def login():
     return render_template("login.html", form=form)
 
 
+@app.route('/login_admin')
+def login_admin():
+    admin = User.query.get(1)
+    login_user(admin)
+    return redirect(url_for('get_all_posts'))
+
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -149,7 +156,6 @@ def logout():
 @app.route("/post/<int:post_id>", methods=['GET', 'POST'])
 def show_post(post_id):
     form = CommentForm()
-    comments = Comments.query.filter_by(post_id=post_id)
     requested_post = BlogPost.query.get(post_id)
     if form.validate_on_submit():
         if not current_user.is_authenticated:
@@ -208,12 +214,11 @@ def edit_post(post_id):
         post.title = edit_form.title.data
         post.subtitle = edit_form.subtitle.data
         post.img_url = edit_form.img_url.data
-        post.author = edit_form.author.data
         post.body = edit_form.body.data
         db.session.commit()
         return redirect(url_for("show_post", post_id=post.id))
 
-    return render_template("make-post.html", form=edit_form)
+    return render_template("make-post.html", form=edit_form, is_edit=True)
 
 
 @app.route("/delete/<int:post_id>")

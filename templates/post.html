@@ -34,9 +34,13 @@
           {% endif %}
 
 <!--           Comments Area -->
+          {% if current_user.is_authenticated%}
             {{ ckeditor.load() }}
             {{ ckeditor.config(name='body') }}
             {{ wtf.quick_form(form, novalidate=true, button_map={"submit": "primary"}) }}
+          {% else %}
+          <p><i>You must be logged in to add a comment</i></p>
+          {% endif%}
           <div class="col-lg-12 col-md-10 mx-auto comment">
               <ul class="commentList">
                 {% for i in post.comment %}
