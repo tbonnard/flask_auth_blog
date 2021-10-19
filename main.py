@@ -15,6 +15,8 @@ from flask_login import UserMixin, login_user, LoginManager, login_required, cur
 from flask_gravatar import Gravatar
 
 import os
+import smtplib
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
@@ -27,6 +29,11 @@ gravatar = Gravatar(app, size=100, rating='g', default='retro', force_default=Fa
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL",  "sqlite:///blog.db")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+
+my_email = os.environ.get("my_email")
+to_email = os.environ.get("to_email")
+pwd = os.environ.get("pwd")
+
 
 # USER
 login_manager = LoginManager()
@@ -173,8 +180,24 @@ def about():
     return render_template("about.html")
 
 
-@app.route("/contact")
+def send_email(name, message):
+    message_to_send = f"Subject:Portfolio: message de {name}! \n\n{message}"
+    with smtplib.SMTP("smtp.gmail.com", port=587) as connection:
+        connection.starttls()
+        connection.login(user=my_email, password=pwd)
+        connection.sendmail(from_addr=my_email, to_addrs=to_email, msg=message_to_send)
+
+
+@app.route("/contact", methods=['GET', 'POST'])
 def contact():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['name']
+        phone = request.form['name']
+        message = request.form['name']
+        message = f'Message recu de "{name}" ({email}) \n\n "{message} \n {name} - {email} - {phone}"'
+        send_email(name, message)
+        return redirect(url_for('get_all_posts'))
     return render_template("contact.html")
 
 
