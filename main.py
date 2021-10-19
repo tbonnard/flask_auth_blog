@@ -192,9 +192,9 @@ def send_email(name, message):
 def contact():
     if request.method == 'POST':
         name = request.form['name']
-        email = request.form['name']
-        phone = request.form['name']
-        message = request.form['name']
+        email = request.form['email']
+        phone = request.form['phone']
+        message = request.form['message']
         message = f'Message recu de "{name}" ({email}) \n\n "{message} \n {name} - {email} - {phone}"'
         send_email(name, message)
         return redirect(url_for('get_all_posts'))
